@@ -5,6 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Arguments class manages the command line arguments into named arguments.
+ * Each named argument is preceeded by a '-' dash character, followed by the argument name.
+ * Any text following the space after the name will be taken as that arguments value.
+ * Any text found before the first named argument is captured as an unnamed argument
+ * and refered to as a 'null' name in all the methods.
+ * 
+ * @author robgilham
+ **/
 public class Arguments {
 
 	public static final String SWITCH = "-";
