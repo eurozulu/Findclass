@@ -30,19 +30,19 @@ public class Findclass {
 	private static final String ARG_HELP = "?";
 	private static final String ARG_VERBOSE = "v";
 	private static final String ARG_IGNORE_CASE = "i";
-	
+
 	private static final String[] ZIP_FORMATS = new String[] {"jar", "zip"};
 	private static final String CLASS_EXTENTION = ".class";
 	private static final String CLASSPATH_DELIMITER = ";";
-	
+
 	private String searchClassName = null;	// The name of the class file to locate.
 	private boolean searchSubDirs = true;	// Flag to search the sub directories or a single directory
 	private boolean ignoreCase = true;		// Ignore the case of the class name
 	private boolean ignorePackage = false;  // Set true when search class has no package
 	private boolean verboseMode = false;	// Flag to control the output
-	
+
 	private List<String> foundItems = new ArrayList<String>();
-	
+
 	/**
 	 * Find the given class name within the given class path
 	 * @param className	The class name of the class to locate, without the trailing '.class'
@@ -51,7 +51,7 @@ public class Findclass {
 	public void findClass(String className, String classPath)
 	{
 		foundItems.clear();
-		
+
 		if (null == className)
 			throw new NullPointerException("class name can not be null");
 
@@ -59,41 +59,41 @@ public class Findclass {
 				className.substring(0, className.length() - CLASS_EXTENTION.length()).trim() :
 					className.trim();
 
-		ignorePackage = !searchClassName.contains(".");  // If package stated in search, then match only when full package name matches.
-		
-		if (isVerboseMode())
-		{
-			System.out.println("Searching for class '" + searchClassName + "' in '" + classPath + "'");
-			System.out.println("Searching sub-directories: " + Boolean.toString(isSearchSubDirectories()));
-			System.out.println("Ignoring the name case: " + Boolean.toString(isIgnoreCase()));
-			System.out.println("Ignoring package names: " + Boolean.toString(ignorePackage));
-		}
-		
-		String[] paths = classPath.split(CLASSPATH_DELIMITER);
-		for (int i=0; i < paths.length; i++)
-		{
-			if (paths[i].trim().length() > 0)
-			{
-				File root = new File(paths[i].trim());
-				if (null == root || !root.exists() || !root.canRead())
-					System.err.println("failed to open path '" + paths[i] + "'.  Ignoring location.");
+				ignorePackage = !searchClassName.contains(".");  // If package stated in search, then match only when full package name matches.
+
+				if (isVerboseMode())
+				{
+					System.out.println("Searching for class '" + searchClassName + "' in '" + classPath + "'");
+					System.out.println("Searching sub-directories: " + Boolean.toString(isSearchSubDirectories()));
+					System.out.println("Ignoring the name case: " + Boolean.toString(isIgnoreCase()));
+					System.out.println("Ignoring package names: " + Boolean.toString(ignorePackage));
+				}
+
+				String[] paths = classPath.split(CLASSPATH_DELIMITER);
+				for (int i=0; i < paths.length; i++)
+				{
+					if (paths[i].trim().length() > 0)
+					{
+						File root = new File(paths[i].trim());
+						if (null == root || !root.exists() || !root.canRead())
+							System.err.println("failed to open path '" + paths[i] + "'.  Ignoring location.");
+						else
+							scanFile(root);
+					}
+				}
+
+				String found;
+				if (foundItems.isEmpty())
+					found = "Did not locate any files called " + searchClassName;
 				else
-					scanFile(root);
-			}
-		}
-		
-		String found;
-		if (foundItems.isEmpty())
-			found = "Did not locate any files called " + searchClassName;
-		else
-		{
-			found = "Found " + foundItems.size() + " file";
-			if (foundItems.size() > 1)
-				found += "s";
-		}
-		System.out.println(found);
-		for (String item: foundItems)
-			System.out.println(item);
+				{
+					found = "Found " + foundItems.size() + " file";
+					if (foundItems.size() > 1)
+						found += "s";
+				}
+				System.out.println(found);
+				for (String item: foundItems)
+					System.out.println(item);
 
 	}
 
@@ -124,7 +124,7 @@ public class Findclass {
 			String name = f.getName().toLowerCase();
 			if (name.endsWith(CLASS_EXTENTION))
 				processClass(f);
-			
+
 			else // Check if it's a zip/jar file
 				for(int i=0; i < ZIP_FORMATS.length; i++)
 				{
@@ -141,7 +141,7 @@ public class Findclass {
 						break;
 					}
 				}
-			
+
 		} // End if for file/directory check
 	}
 
@@ -165,7 +165,7 @@ public class Findclass {
 		return searchSubDirs;
 	}
 
-	
+
 	/**
 	 * Flag to control the amount of output to the Logger during the search process.
 	 * Default is False, to display just the basic information.
@@ -206,7 +206,7 @@ public class Findclass {
 		this.ignoreCase = ignoreCase;
 	}
 
-		
+
 	/**
 	 * Process the given single file to check if it a class that matches the search name.
 	 * If the given file is a match, then its name is added to the found classes list. 
@@ -216,12 +216,12 @@ public class Findclass {
 	{
 		if (isVerboseMode())
 			System.out.println("Checking class file " + f.getName());
-		
+
 		if (isMatchingName(f.getName()))
 			outputFoundFile(f.getName(), f.getParentFile());
 	}
-	
-	
+
+
 	/**
 	 * Process the given archive file to check if it contains a class that matches the search name.
 	 * If the given file contains a match, then its name is added to the found classes list. 
@@ -231,20 +231,21 @@ public class Findclass {
 	{
 		if (isVerboseMode())
 			System.out.println("Checking archive file " + f.getName());
+		
 		try {
-		ZipFile zip = new ZipFile(f);
-		Enumeration<? extends ZipEntry> enteries = zip.entries();
-		while (enteries.hasMoreElements())
-		{
-			ZipEntry entry = (ZipEntry)enteries.nextElement(); 
-			if (!entry.isDirectory())
+			ZipFile zip = new ZipFile(f);
+			Enumeration<? extends ZipEntry> enteries = zip.entries();
+			while (enteries.hasMoreElements())
 			{
-				String name = entry.getName().replace('/', '.');
-				if (isMatchingName(name))
-					outputFoundFile(name, f);
+				ZipEntry entry = (ZipEntry)enteries.nextElement(); 
+				if (!entry.isDirectory())
+				{
+					String name = entry.getName().replace('/', '.');
+					if (isMatchingName(name))
+						outputFoundFile(name, f);
+				}
+
 			}
-				
-		}
 		}catch(ZipException e) {
 			throw new IOException("An error has occured opening the zip file:\n" + f.getPath(), e);
 		}
@@ -262,10 +263,10 @@ public class Findclass {
 		String item = name + " found in " + parentType + " " + parent.getAbsolutePath();
 		if (isVerboseMode())
 			System.out.println("*** " + name + " found in " + parent.getName() + " ***");
-		
+
 		foundItems.add(item);
 	}
-	
+
 	/**
 	 * Compares the given name with the search class name, according to the rules configured by the finder
 	 * @param name The name to check
@@ -276,7 +277,7 @@ public class Findclass {
 		if (!name.toLowerCase().endsWith(CLASS_EXTENTION))
 			return false;
 		name = name.substring(0, name.length() - CLASS_EXTENTION.length()).trim();
-		
+
 		if (ignorePackage)
 		{
 			int iPos = name.lastIndexOf(".");
@@ -284,7 +285,7 @@ public class Findclass {
 				name = name.substring(iPos + 1);
 		}else if (name.length() > searchClassName.length())  // Otherwise, strip off any leading dir names from name
 			name = name.substring(0, searchClassName.length());
-		
+
 		if (isIgnoreCase())
 			return searchClassName.equalsIgnoreCase(name);
 		else
@@ -310,7 +311,7 @@ public class Findclass {
 			System.err.println("No class name stated!");
 			System.exit(-1);
 		}
-		
+
 		String classPath = arguments.containsArgument(ARG_PATH) ? arguments.getArgument(ARG_PATH) : arguments.getArgument(ARG_PATH2);
 		if (null == classPath || classPath.length() < 1)  // If no path stated, use current dir
 			classPath = new File(".").getAbsolutePath();
@@ -318,11 +319,11 @@ public class Findclass {
 		Findclass fc = new Findclass();
 		if (arguments.containsArgument(ARG_SUB_DIRS))  // Process the Sub directories switch
 			fc.setSearchSubDirectories(false);
-		
+
 		fc.setVerboseMode(arguments.containsArgument(ARG_VERBOSE));  // Process the Verbose switch
 
 		fc.setIgnoreCase(arguments.containsArgument(ARG_IGNORE_CASE));
-		
+
 		fc.findClass(className, classPath);
 	}
 
@@ -332,7 +333,7 @@ public class Findclass {
 	public static void showUse()
 	{
 		PrintStream out = System.out;
-		
+
 		out.println();
 		out.println("Locates class files within directory and archive file structures.");
 		out.println("Give the name of the class you wish to find, and an optional path");
