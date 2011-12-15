@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 /**
- * The FC class scans one or more directory locations for a given java class name.
+ * The Findclass class scans one or more directory locations for a given java class name.
  * It locates the class file(s) within the given directory structures and contained JAR/zip files.
  * 
  * It's use was prompted by so many deployment headaches when class not found errors are thrown
@@ -21,7 +22,7 @@ import java.util.zip.ZipFile;
  * @author Rob Gilham
  *
  */
-public class FC {
+public class Findclass {
 
 	private static final String ARG_PATH = "classpath";
 	private static final String ARG_PATH2 = "cp";
@@ -132,7 +133,10 @@ public class FC {
 						try {
 							processZip(f);
 						} catch (IOException e) {
-							e.printStackTrace();
+							if (isVerboseMode())
+								e.printStackTrace();
+							else
+								System.err.println(e.getMessage());
 						}
 						break;
 					}
@@ -227,9 +231,9 @@ public class FC {
 	{
 		if (isVerboseMode())
 			System.out.println("Checking archive file " + f.getName());
-		
+		try {
 		ZipFile zip = new ZipFile(f);
-		Enumeration enteries = zip.entries();
+		Enumeration<? extends ZipEntry> enteries = zip.entries();
 		while (enteries.hasMoreElements())
 		{
 			ZipEntry entry = (ZipEntry)enteries.nextElement(); 
@@ -240,6 +244,9 @@ public class FC {
 					outputFoundFile(name, f);
 			}
 				
+		}
+		}catch(ZipException e) {
+			throw new IOException("An error has occured opening the zip file:\n" + f.getPath(), e);
 		}
 	}
 
@@ -299,8 +306,8 @@ public class FC {
 		String className = arguments.getArgument(null);
 		if (null == className)
 		{
-			System.err.println("No class name stated!");
 			showUse();
+			System.err.println("No class name stated!");
 			System.exit(-1);
 		}
 		
@@ -308,13 +315,9 @@ public class FC {
 		if (null == classPath || classPath.length() < 1)  // If no path stated, use current dir
 			classPath = new File(".").getAbsolutePath();
 
-		FC fc = new FC();
+		Findclass fc = new Findclass();
 		if (arguments.containsArgument(ARG_SUB_DIRS))  // Process the Sub directories switch
-		{
-			String stateName = arguments.getArgument(ARG_SUB_DIRS).toLowerCase();
-			boolean state = "yes".equals(stateName) || "true".equals(stateName) || "1".equals(stateName);
-			fc.setSearchSubDirectories(state);
-		}
+			fc.setSearchSubDirectories(false);
 		
 		fc.setVerboseMode(arguments.containsArgument(ARG_VERBOSE));  // Process the Verbose switch
 
@@ -336,7 +339,7 @@ public class FC {
 		out.println("location to search to locate any class files with the given name.");
 		out.println("Copyright 2008 - Rob Gilham  (eurospoofer@yahoo.co.uk)\n");
 		out.println("FC <class name> [-" + ARG_PATH + " <search file path[;additional paths]>]");
-		out.println("\t\t[-" + ARG_SUB_DIRS + " <true | false>] [-" + ARG_IGNORE_CASE + "]  [-" + ARG_VERBOSE + "]");
+		out.println("\t\t[-" + ARG_SUB_DIRS + " [-" + ARG_IGNORE_CASE + "]  [-" + ARG_VERBOSE + "]");
 		out.println();
 		out.println("Required arguments:");
 		out.println("<class name>\tThe name of the class to be found.\n\t\tWithout the .class extention, package name is optional.");
@@ -347,10 +350,9 @@ public class FC {
 		out.println("\t\tMultiple locations should be seperating with a '" + CLASSPATH_DELIMITER + "'.");
 		out.println("\t\tThe '-" + ARG_PATH + "' argument can be shortened to '-" + ARG_PATH2 + "'.");
 		out.println();
-		out.println("-" + ARG_SUB_DIRS + " true|false\tSearch sub-directories.");
-		out.println("\t\tWhen true, the default, sub directories of the " + ARG_PATH);
-		out.println("\t\tlocation(s) are also searched.");
-		out.println("\t\tSetting to false, only the given " + ARG_PATH + " is searched.");
+		out.println("-" + ARG_SUB_DIRS + "\t\tsuppress the search of sub-directories.");
+		out.println("\t\tWhen stated, only searches the directories listed in " + ARG_PATH);
+		out.println("\t\tbut not the sub directories.");
 		out.println();
 		out.println("-" + ARG_IGNORE_CASE + " \t\tIgnore the class name case.");
 		out.println("\t\tWhen present, the case of the search name is ignored and\n\t\tany class matching the name,regardless of case, is found.");
