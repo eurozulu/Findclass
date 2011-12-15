@@ -1,0 +1,5 @@
+#Ignore the bin dir and project files.
+.classpath
+.project
+bin/
+
