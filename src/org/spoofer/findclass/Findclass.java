@@ -31,7 +31,7 @@ public class Findclass {
 	private static final String ARG_VERBOSE = "v";
 	private static final String ARG_IGNORE_CASE = "i";
 
-	private static final String[] ZIP_FORMATS = new String[] {"jar", "zip"};
+	private static final String[] ZIP_FORMATS = new String[] {"jar", "zip", "war", "ear"};
 	private static final String CLASS_EXTENTION = ".class";
 	private static final String CLASSPATH_DELIMITER = ";";
 
@@ -125,7 +125,7 @@ public class Findclass {
 			if (name.endsWith(CLASS_EXTENTION))
 				processClass(f);
 
-			else // Check if it's a zip/jar file
+			else // Check if it's a zip file
 				for(int i=0; i < ZIP_FORMATS.length; i++)
 				{
 					if (name.endsWith("." + ZIP_FORMATS[i]))
