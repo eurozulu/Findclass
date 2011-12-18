@@ -1,21 +1,19 @@
 Find class is used to locate java classes within a directory structure.
 A tool for use when that Class not found'exception is in your face!
 
-It will scan a directory structure, searching for a class file in the directories and also any jar and zip files
+It will scan a directory structure, searching for a class file in the directories and also any jar, zip, war and ear files
 it finds within that directory.
 
-It can also scan multiple locations so check your classpath settings to find out missing classes or classes with the same name causing clashes.
+It can scan multiple locations so check your classpath settings to find out missing classes or classes with the same name causing clashes.
 
 
 Usage:
 
 to start the tool use:
 
-java -jar fc.jar <class name to find>
+java -jar findclass.jar <class name to find>
 
-fc has one required argument, the class name you are searching for.
-
-
+Find class has one required argument, the class name you are searching for.
 There are other arguments that can be applied to control the search process.
 
 Arguments:
@@ -27,7 +25,7 @@ class name	The class name of the class to find must always be stated.  Just the 
 		When the package is stated, only classes matching the name and the package will be found.
 		When no package name is stated, any class with the given name, in any package will be found.
 
-optional arguments.
+Optional arguments.
 Optional arguments are all preceeded with a '-' dash, followed by the name of the argument.
 
 -classpath	The directory to begin the search from.  If not stated, the current directory is used.
@@ -36,9 +34,10 @@ Optional arguments are all preceeded with a '-' dash, followed by the name of th
 -cp		Exactly the same as classpath.  The classpath argument can use the short version for brifity.
 
 
--s true | false	Stipulates that the sub direcotrories of the directories in the class path should be searched.
-		By default, this is true.  Setting this to false will only search the actual directories in the classpath and not
+-s 		Supresses the searching of sub directories.  Usually all subdirectories are searched.
+		Stating this argument, only files int the directories in the given class path are searched.
 		the sub directories.
+		This does NOT apply to zip or other compressed files, all files in those are searched.
 
 -i		Ignore case.  By default the search is case sensative to the class name.  Stating the -i option
 		makes the search case insensative.
