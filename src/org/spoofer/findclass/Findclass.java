@@ -17,7 +17,7 @@ import java.util.zip.ZipFile;
  * It's use was prompted by so many deployment headaches when class not found errors are thrown
  * or clashes occurred with two classes of the same name but different versions were caught in a class path.
  * 
- * Simple use is:  fc <class name to find> -classpath <direcotries to search, separated with a ;>
+ * Simple use is:  findclass <class name to find> -classpath <direcotries to search, separated with a ;>
  * 
  * @author Rob Gilham
  *
@@ -339,7 +339,7 @@ public class Findclass {
 		out.println("Give the name of the class you wish to find, and an optional path");
 		out.println("location to search to locate any class files with the given name.");
 		out.println("Copyright 2008 - Rob Gilham  (eurospoofer@yahoo.co.uk)\n");
-		out.println("FC <class name> [-" + ARG_PATH + " <search file path[;additional paths]>]");
+		out.println("Findclass <class name> [-" + ARG_PATH + " <search file path[;additional paths]>]");
 		out.println("\t\t[-" + ARG_SUB_DIRS + " [-" + ARG_IGNORE_CASE + "]  [-" + ARG_VERBOSE + "]");
 		out.println();
 		out.println("Required arguments:");
