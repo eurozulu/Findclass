@@ -37,7 +37,7 @@ public class Findclass {
 
 	private String searchClassName = null;	// The name of the class file to locate.
 	private boolean searchSubDirs = true;	// Flag to search the sub directories or a single directory
-	private boolean ignoreCase = true;		// Ignore the case of the class name
+	private boolean ignoreCase = false;		// Ignore the case of the class name
 	private boolean ignorePackage = false;  // Set true when search class has no package
 	private boolean verboseMode = false;	// Flag to control the output
 
@@ -247,7 +247,7 @@ public class Findclass {
 
 			}
 		}catch(ZipException e) {
-			throw new IOException("An error has occured opening the zip file:\n" + f.getPath(), e);
+			throw new IOException(String.format("An error has occured opening the zip file:\n%s\n%s", f.getPath(), e));
 		}
 	}
 
